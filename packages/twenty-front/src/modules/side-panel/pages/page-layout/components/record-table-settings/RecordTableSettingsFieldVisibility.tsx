@@ -7,6 +7,7 @@ import { type DraggableListDropResult } from '@/ui/layout/draggable-list/types/D
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { useMemo } from 'react';
+import { isDefined } from 'twenty-shared/utils';
 import { LightIconButton } from 'twenty-ui/components/input';
 import { MenuItemDraggable } from 'twenty-ui/components/navigation';
 import { IconEye, IconEyeOff, useIcons } from 'twenty-ui/icon';
@@ -38,7 +39,7 @@ export const RecordTableSettingsFieldVisibility = ({
   widgetId,
   pageLayoutId,
 }: RecordTableSettingsFieldVisibilityProps) => {
-  const { recordTableWidgetViewFieldItems } =
+  const { recordTableWidgetViewFieldItems, labelIdentifierFieldMetadataId } =
     useRecordTableWidgetViewFieldItems({ viewId, widgetId, pageLayoutId });
 
   const { toggleRecordTableWidgetFieldVisibility } =
@@ -51,20 +52,25 @@ export const RecordTableSettingsFieldVisibility = ({
 
   const { getIcon } = useIcons();
 
+  const labelIdentifierFieldItem = recordTableWidgetViewFieldItems.find(
+    (item) => item.fieldMetadataItem.id === labelIdentifierFieldMetadataId,
+  );
+
   const visibleFieldItems = useMemo(
     () =>
       recordTableWidgetViewFieldItems.filter(
-        (item) => item.viewField.isVisible,
+        (item) => item.viewField.isVisible && item !== labelIdentifierFieldItem,
       ),
-    [recordTableWidgetViewFieldItems],
+    [recordTableWidgetViewFieldItems, labelIdentifierFieldItem],
   );
 
   const hiddenFieldItems = useMemo(
     () =>
       recordTableWidgetViewFieldItems.filter(
-        (item) => !item.viewField.isVisible,
+        (item) =>
+          !item.viewField.isVisible && item !== labelIdentifierFieldItem,
       ),
-    [recordTableWidgetViewFieldItems],
+    [recordTableWidgetViewFieldItems, labelIdentifierFieldItem],
   );
 
   const handleDragEnd = (result: DraggableListDropResult) => {
@@ -84,6 +90,15 @@ export const RecordTableSettingsFieldVisibility = ({
   return (
     <StyledFieldListContainer>
       <StyledSectionLabel>Visible</StyledSectionLabel>
+      {isDefined(labelIdentifierFieldItem) && (
+        <MenuItemDraggable
+          LeftIcon={getIcon(labelIdentifierFieldItem.fieldMetadataItem.icon)}
+          text={labelIdentifierFieldItem.fieldMetadataItem.label}
+          accent="placeholder"
+          gripMode="always"
+          isDragDisabled
+        />
+      )}
       {visibleFieldItems.length > 0 && (
         <DraggableList
           onDragEnd={handleDragEnd}

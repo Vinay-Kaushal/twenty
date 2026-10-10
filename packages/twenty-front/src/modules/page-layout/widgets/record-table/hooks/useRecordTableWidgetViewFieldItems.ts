@@ -1,3 +1,4 @@
+import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useMapViewFieldToRecordTableWidgetViewFieldItem } from '@/page-layout/widgets/record-table/hooks/useMapViewFieldToRecordTableWidgetViewFieldItem';
 import { useRecordTableWidgetViewForDisplay } from '@/page-layout/widgets/record-table/hooks/useRecordTableWidgetViewForDisplay';
 import { type RecordTableWidgetViewFieldItem } from '@/page-layout/widgets/record-table/types/RecordTableWidgetViewFieldItem';
@@ -37,5 +38,11 @@ export const useRecordTableWidgetViewFieldItems = ({
         .filter(isDefined);
     }, [view, mapViewFieldToRecordTableWidgetViewFieldItem]);
 
-  return { recordTableWidgetViewFieldItems };
+  const { objectMetadataItems } = useObjectMetadataItems();
+
+  const labelIdentifierFieldMetadataId = objectMetadataItems.find(
+    (objectMetadataItem) => objectMetadataItem.id === view?.objectMetadataId,
+  )?.labelIdentifierFieldMetadataId;
+
+  return { recordTableWidgetViewFieldItems, labelIdentifierFieldMetadataId };
 };
